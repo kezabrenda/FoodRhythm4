@@ -32,6 +32,9 @@ public class Recipe {
 
     private String pushId;
 
+    String index;
+
+
     /**
      * No args constructor for use in serialization
      * 
@@ -58,6 +61,9 @@ public class Recipe {
         this.imageUrl = imageUrl;
         this.socialRank = socialRank;
         this.publisherUrl = publisherUrl;
+
+        this.index = "not_specified";
+
     }
 
     public String getPublisher() {
@@ -116,12 +122,19 @@ public class Recipe {
         this.publisherUrl = publisherUrl;
     }
 
-
     public String getPushId() {
         return pushId;
     }
 
     public void setPushId(String pushId) {
         this.pushId = pushId;
+    }
+
+    public String getIndex() {
+        return index;
+    }
+
+    public void setIndex(String index) {
+        this.index = index;
     }
 }

@@ -28,6 +28,7 @@ import java.util.ArrayList;
 public class FirebaseRecipeViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     View mView;
     Context mContext;
+    public ImageView mRecipeImageView;
 
     public FirebaseRecipeViewHolder(View itemView) {
         super(itemView);
@@ -37,6 +38,8 @@ public class FirebaseRecipeViewHolder extends RecyclerView.ViewHolder implements
     }
 
     public void bindRecipe(Recipe recipe) {
+        mRecipeImageView = (ImageView) mView.findViewById(R.id.imageUrlImageView);
+
         ImageView recipeImageView = (ImageView) mView.findViewById(R.id.imageUrlImageView);
         TextView nameTextView = (TextView) mView.findViewById(R.id.recipeNameTextView);
         TextView sourceUrlTextView = (TextView) mView.findViewById(R.id.sourceUrlTextView);

@@ -2,6 +2,7 @@ package com.example.foodrhythm4.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import com.example.foodrhythm4.Constants;
 import com.example.foodrhythm4.R;
 import com.example.foodrhythm4.adapters.FirebaseRecipeViewHolder;
+import com.example.foodrhythm4.helper.OnStartDragListener;
 import com.example.foodrhythm4.models.Recipe;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -27,9 +29,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SavedRecipesListActivity extends AppCompatActivity {
+public class SavedRecipesListActivity extends AppCompatActivity implements OnStartDragListener {
     private DatabaseReference mRecipeReference;
     private FirebaseRecyclerAdapter<Recipe, FirebaseRecipeViewHolder> mFirebaseAdapter;
+    private ItemTouchHelper mItemTouchHelper;
 
     @BindView(R.id.recyclerView) RecyclerView mRecyclerView;
     @BindView(R.id.errorTextView) TextView mErrorTextView;
@@ -96,5 +99,10 @@ public class SavedRecipesListActivity extends AppCompatActivity {
 
     private void hideProgressBar() {
         mProgressBar.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        mItemTouchHelper.startDrag(viewHolder);
     }
 }
