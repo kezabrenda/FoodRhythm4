@@ -11,7 +11,6 @@ public class MyItemTouchHelperCallBack extends ItemTouchHelper.Callback {
     public static final float ALPHA_FULL = 1.0f;
     public final ItemTouchHelperAdapter adapter;
 
-
     public MyItemTouchHelperCallBack(ItemTouchHelperAdapter adapter) {
         this.adapter = adapter;
     }

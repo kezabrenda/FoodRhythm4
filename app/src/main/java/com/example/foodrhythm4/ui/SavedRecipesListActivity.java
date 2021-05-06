@@ -16,7 +16,10 @@ import android.widget.TextView;
 
 import com.example.foodrhythm4.Constants;
 import com.example.foodrhythm4.R;
+import com.example.foodrhythm4.adapters.FirebaseRecipeListAdapter;
 import com.example.foodrhythm4.adapters.FirebaseRecipeViewHolder;
+import com.example.foodrhythm4.helper.ItemTouchHelperAdapter;
+import com.example.foodrhythm4.helper.MyItemTouchHelperCallBack;
 import com.example.foodrhythm4.helper.OnStartDragListener;
 import com.example.foodrhythm4.models.Recipe;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -25,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,38 +50,35 @@ public class SavedRecipesListActivity extends AppCompatActivity implements OnSta
 
         mRecipeReference = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_CHILD_RECIPES);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = user.getUid();
-        mRecipeReference = FirebaseDatabase
-                .getInstance()
-                .getReference(Constants.FIREBASE_CHILD_RECIPES)
-                .child(uid);
-
         setUpFirebaseAdapter();
         hideProgressBar();
         showRestaurants();
     }
 
     private void setUpFirebaseAdapter(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user.getUid();
+
+        Query query = FirebaseDatabase
+                .getInstance()
+                .getReference(Constants.FIREBASE_CHILD_RECIPES)
+                .child(uid)
+                .orderByChild(Constants.FIREBASE_QUERY_INDEX);
+
+
         FirebaseRecyclerOptions<Recipe> options =
                 new FirebaseRecyclerOptions.Builder<Recipe>()
-                        .setQuery(mRecipeReference, Recipe.class)
+                        .setQuery(query, Recipe.class)
                         .build();
 
-        mFirebaseAdapter = new FirebaseRecyclerAdapter<Recipe, FirebaseRecipeViewHolder>(options) {
-            @Override
-            protected void onBindViewHolder(@NonNull FirebaseRecipeViewHolder firebaseRecipeViewHolder, int position, @NonNull Recipe recipe) {
-                firebaseRecipeViewHolder.bindRecipe(recipe);
-            }
-            @NonNull
-            @Override
-            public FirebaseRecipeViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recipe_list_item_drag, parent, false);
-                return new FirebaseRecipeViewHolder(view);
-            }
-        };
+        mFirebaseAdapter = new FirebaseRecipeListAdapter(options, query, this, this);
+
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mFirebaseAdapter);
+        mRecyclerView.setHasFixedSize(true);
+        ItemTouchHelper.Callback callback = new MyItemTouchHelperCallBack((ItemTouchHelperAdapter) mFirebaseAdapter);
+        mItemTouchHelper = new ItemTouchHelper(callback);
+        mItemTouchHelper.attachToRecyclerView(mRecyclerView);
     }
     @Override
     protected void onStart() {
