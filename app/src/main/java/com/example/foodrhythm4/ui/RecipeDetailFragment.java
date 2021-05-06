@@ -39,22 +39,29 @@ public class RecipeDetailFragment extends Fragment implements View.OnClickListen
         @BindView(R.id.saveRecipeButton) TextView mSaveRecipeButton;
         private Recipe mRecipe;
 
+    private ArrayList<Recipe> mRecipes;
+    private int mPosition;
+
     public RecipeDetailFragment() {
         }
 
-        public static RecipeDetailFragment newInstance(Recipe recipe) {
-            RecipeDetailFragment recipeDetailFragment = new RecipeDetailFragment();
-            Bundle args = new Bundle();
-            args.putParcelable("recipe", Parcels.wrap(recipe));
-            recipeDetailFragment.setArguments(args);
-            return recipeDetailFragment;
-        }
+    public static RecipeDetailFragment newInstance(List<Recipe> recipes, int position) {
+        RecipeDetailFragment recipeDetailFragment = new RecipeDetailFragment();
+        Bundle args = new Bundle();
 
-        @Override
+        args.putParcelable(Constants.EXTRA_KEY_RECIPES, Parcels.wrap(recipes));
+        args.putInt(Constants.EXTRA_KEY_POSITION, position);
+
+        recipeDetailFragment.setArguments(args);
+        return recipeDetailFragment;
+    }
+
+    @Override
         public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            assert getArguments() != null;
-            mRecipe = Parcels.unwrap(getArguments().getParcelable("recipe"));
+        super.onCreate(savedInstanceState);
+        mRecipes = Parcels.unwrap(getArguments().getParcelable(Constants.EXTRA_KEY_RECIPES));
+        mPosition = getArguments().getInt(Constants.EXTRA_KEY_POSITION);
+        mRecipe = mRecipes.get(mPosition);
         }
 
         @Override

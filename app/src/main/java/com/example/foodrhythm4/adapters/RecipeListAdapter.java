@@ -2,6 +2,7 @@ package com.example.foodrhythm4.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,11 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.foodrhythm4.Constants;
 import com.example.foodrhythm4.R;
 import com.example.foodrhythm4.models.Recipe;
 import com.example.foodrhythm4.ui.RecipeDetailActivity;
+import com.example.foodrhythm4.ui.RecipeDetailFragment;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
@@ -55,6 +60,8 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
         @BindView(R.id.sourceUrlTextView) TextView mSourceUrlTextView;
         @BindView(R.id.socialRankTextView) TextView mSocialRankTextView;
 
+        private int mOrientation;
+
         private Context mContext;
 
         public RecipesViewHolder(View itemView) {
@@ -62,6 +69,26 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
             ButterKnife.bind(this, itemView);
             mContext = itemView.getContext();
             itemView.setOnClickListener(this);
+
+            // Determines the current orientation of the device:
+            mOrientation = itemView.getResources().getConfiguration().orientation;
+
+            // Checks if the recorded orientation matches Android's landscape configuration.
+            // if so, we create a new DetailFragment to display in our special landscape layout:
+            if (mOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                createDetailFragment(0);
+            }
+        }
+
+        private void createDetailFragment(int position) {
+            // Creates new RestaurantDetailFragment with the given position:
+            RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(mRecipes, position);
+            // Gathers necessary components to replace the FrameLayout in the layout with the RestaurantDetailFragment:
+            FragmentTransaction ft = ((FragmentActivity) mContext).getSupportFragmentManager().beginTransaction();
+            //  Replaces the FrameLayout with the RestaurantDetailFragment:
+            ft.replace(R.id.recipeDetailContainer, detailFragment);
+            // Commits these changes:
+            ft.commit();
         }
 
         public void bindRecipe(Recipe recipe) {
@@ -74,10 +101,14 @@ public class RecipeListAdapter extends RecyclerView.Adapter<RecipeListAdapter.Re
         @Override
         public void onClick(View v) {
             int itemPosition = getLayoutPosition();
-            Intent intent = new Intent(mContext, RecipeDetailActivity.class);
-            intent.putExtra("position", itemPosition);
-            intent.putExtra("recipes", Parcels.wrap(mRecipes));
-            mContext.startActivity(intent);
+            if(mOrientation == Configuration.ORIENTATION_LANDSCAPE){
+                createDetailFragment(itemPosition);
+            } else {
+                Intent intent = new Intent(mContext, RecipeDetailActivity.class);
+                intent.putExtra(Constants.EXTRA_KEY_POSITION, itemPosition);
+                intent.putExtra(Constants.EXTRA_KEY_RECIPES, Parcels.wrap(mRecipes));
+                mContext.startActivity(intent);
+            }
         }
     }
 }

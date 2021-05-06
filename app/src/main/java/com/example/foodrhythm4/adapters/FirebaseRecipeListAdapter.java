@@ -1,17 +1,24 @@
 package com.example.foodrhythm4.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.example.foodrhythm4.Constants;
 import com.example.foodrhythm4.R;
 import com.example.foodrhythm4.helper.ItemTouchHelperAdapter;
 import com.example.foodrhythm4.helper.OnStartDragListener;
 import com.example.foodrhythm4.models.Recipe;
+import com.example.foodrhythm4.ui.RecipeDetailActivity;
+import com.example.foodrhythm4.ui.RecipeDetailFragment;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.ChildEventListener;
@@ -19,6 +26,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,6 +41,7 @@ public class FirebaseRecipeListAdapter extends FirebaseRecyclerAdapter<Recipe,
     private ChildEventListener mChildEventListener;
     private ArrayList<Recipe> mRecipes = new ArrayList<>();
 
+    private int mOrientation;
 
     public FirebaseRecipeListAdapter(FirebaseRecyclerOptions<Recipe> options, Query ref,
                                      OnStartDragListener onStartDragListener,
@@ -74,6 +84,11 @@ public class FirebaseRecipeListAdapter extends FirebaseRecyclerAdapter<Recipe,
     protected void onBindViewHolder(@NonNull FirebaseRecipeViewHolder firebaseRecipeViewHolder, int position, @NonNull Recipe recipe) {
         firebaseRecipeViewHolder.bindRecipe(recipe);
 
+        mOrientation = firebaseRecipeViewHolder.itemView.getResources().getConfiguration().orientation;
+        if (mOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            createDetailFragment(0);
+        }
+
         firebaseRecipeViewHolder.mRecipeImageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -81,6 +96,21 @@ public class FirebaseRecipeListAdapter extends FirebaseRecyclerAdapter<Recipe,
                     mOnStartDragListener.onStartDrag(firebaseRecipeViewHolder);
                 }
                 return false;
+            }
+        });
+
+        firebaseRecipeViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int itemPosition = firebaseRecipeViewHolder.getAdapterPosition();
+                if (mOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    createDetailFragment(itemPosition);
+                } else {
+                    Intent intent = new Intent(mContext, RecipeDetailActivity.class);
+                    intent.putExtra(Constants.EXTRA_KEY_POSITION, itemPosition);
+                    intent.putExtra(Constants.EXTRA_KEY_RECIPES, Parcels.wrap(mRecipes));
+                    mContext.startActivity(intent);
+                }
             }
         });
     }
@@ -114,6 +144,20 @@ public class FirebaseRecipeListAdapter extends FirebaseRecyclerAdapter<Recipe,
             ref.setValue(recipe);
         }
     }
+
+    private void createDetailFragment(int position) {
+        // Creates new RestaurantDetailFragment with the given position:
+        RecipeDetailFragment detailFragment = RecipeDetailFragment.newInstance(mRecipes, position);
+        // Gathers necessary components to replace the FrameLayout in the layout with the RestaurantDetailFragment:
+        FragmentTransaction ft = ((FragmentActivity) mContext).getSupportFragmentManager().beginTransaction();
+        //  Replaces the FrameLayout with the RestaurantDetailFragment:
+        ft.replace(R.id.recipeDetailContainer, detailFragment);
+        // Commits these changes:
+        ft.commit();
+    }
     @Override
-    public void stopListening() { super.stopListening(); mRef.removeEventListener(mChildEventListener); }
+    public void stopListening() {
+        super.stopListening();
+        mRef.removeEventListener(mChildEventListener);
+    }
 }

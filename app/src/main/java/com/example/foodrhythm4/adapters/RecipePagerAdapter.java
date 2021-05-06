@@ -1,7 +1,6 @@
 package com.example.foodrhythm4.adapters;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
@@ -19,8 +18,8 @@ public class RecipePagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
-    public Fragment getItem(int position) {
-        return RecipeDetailFragment.newInstance(mRecipes.get(position));
+    public RecipeDetailFragment getItem(int position) {
+        return RecipeDetailFragment.newInstance(mRecipes, position);
     }
 
     @Override
