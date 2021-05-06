@@ -8,6 +8,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -38,9 +41,9 @@ public class RecipeDetailFragment extends Fragment implements View.OnClickListen
         @BindView(R.id.sourceUrlTextView) TextView mSourceUrlLabel;
         @BindView(R.id.saveRecipeButton) TextView mSaveRecipeButton;
         private Recipe mRecipe;
-
-    private ArrayList<Recipe> mRecipes;
-    private int mPosition;
+        private ArrayList<Recipe> mRecipes;
+        private int mPosition;
+    private String mSource;
 
     public RecipeDetailFragment() {
         }
@@ -62,7 +65,8 @@ public class RecipeDetailFragment extends Fragment implements View.OnClickListen
         mRecipes = Parcels.unwrap(getArguments().getParcelable(Constants.EXTRA_KEY_RECIPES));
         mPosition = getArguments().getInt(Constants.EXTRA_KEY_POSITION);
         mRecipe = mRecipes.get(mPosition);
-        }
+        setHasOptionsMenu(true);
+    }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -104,4 +108,25 @@ public class RecipeDetailFragment extends Fragment implements View.OnClickListen
             Toast.makeText(getContext(), "Saved", Toast.LENGTH_SHORT).show();
             }
     }
+
+    /*@Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        if (mSource.equals(Constants.SOURCE_SAVED)) {
+            inflater.inflate(R.menu.menu_photo, menu);
+        } else {
+            inflater.inflate(R.menu.menu_main, menu);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_photo:
+                onLaunchCamera();
+            default:
+                break;
+        }
+        return false;
+    }*/
 }
